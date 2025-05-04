@@ -2,29 +2,30 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'johnsonbv/java-web-calculator'
-        DOCKER_CREDENTIALS_ID = 'johnsonbv-creds-id'
+        DOCKERHUB_CREDENTIALS = credentials('johnsonbv-creds-id')
     }
 
     stages {
-        stage('Checkout') {
+        stage('Debug PATH') {
             steps {
-                git 'https://github.com/JohnsonBV/JavaWeb3.git'
+                sh 'echo Current PATH: $PATH'
+                sh 'which docker'
+                sh 'docker --version || echo "Docker not found"'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $DOCKER_IMAGE .'
+                sh 'docker build -t johnsonbv/java-web-calculator .'
             }
         }
 
         stage('Push to Docker Hub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: env.DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                withCredentials([usernamePassword(credentialsId: 'johnsonbv-creds-id', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
                     sh '''
-                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                        docker push $DOCKER_IMAGE
+                        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+                        docker push johnsonbv/java-web-calculator
                     '''
                 }
             }
