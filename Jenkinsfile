@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        PATH = "usr/bin:$PATH"
+        PATH = "/usr/bin:$PATH"
         DOCKERHUB_CREDENTIALS = credentials('johnsonbv-creds-id')
     }
 
